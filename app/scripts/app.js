@@ -64,6 +64,7 @@ Instructions:
     .then(function(response) {
       // this is important, initialize a chain
       var sequence = Promise.resolve();
+      addSearchHeader(response.query);
       response.results.forEach(function(url){
         sequence = sequence
         .then(function(){
