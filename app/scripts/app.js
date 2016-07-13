@@ -59,11 +59,18 @@ Instructions:
 
   window.addEventListener('WebComponentsReady', function() {
     home = document.querySelector('section[data-route="home"]');
-    /*
-    Uncomment the next line and start here when you're ready to add the first thumbnail!
-
-    Your code goes here!
-     */
-    // getJSON('../data/earth-like-results.json')
+    getJSON('../data/earth-like-results.json')
+    .then(function(response){
+      console.log(response);
+      addSearchHeader(response.query);
+      return response.results; // return results here?
+    })
+    .then(function(results){ // results are data?
+      createPlanetThumb(results);
+    })
+    .catch(function(err){
+      console.log(err);
+      addSearchHeader('unknown');
+    })
   });
 })(document);
