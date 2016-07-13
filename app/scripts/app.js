@@ -29,7 +29,7 @@ Instructions:
    * @return {Promise}    - A Promise that resolves when the XHR succeeds and fails otherwise.
    */
   function get(url) {
-    return fetch(url, {method: 'get'}); // this should be a Promise?
+    return fetch(url, {method: 'get'}); // this should be a Promise? Yes!
   }
 
   /**
@@ -38,27 +38,22 @@ Instructions:
    * @return {Promise}    - A promise that passes the parsed JSON response.
    */
   function getJSON(url) {
-    return new Promise(function(resolve, reject) {
-      get(url)
-      .then(function(response){
-        console.log(response);
-        resolve(JSON.parse(response).query);
-      })
-      .catch(function(err){
-        reject(err);
-      });
-    });
+    return get(url)
+    .then(function(response){
+      return response.json();
+    })
   }
 
   window.addEventListener('WebComponentsReady', function() {
     home = document.querySelector('section[data-route="home"]');
     getJSON('../data/earth-like-results.json')
-    .then(function(query){
-      console.log(query);
-      addSearchHeader(query);
+    .then(function(response){
+      console.log(response);
+      addSearchHeader(response.query);
     })
     .catch(function(err){
       addSearchHeader('unknown');
+      console.log(err);
     })
   });
 })(document);
