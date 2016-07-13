@@ -63,10 +63,11 @@ Instructions:
     .then(function(response){
       console.log(response);
       addSearchHeader(response.query);
-      return response.results; // return results here?
+      // use another getJSON to get planet data (in another JSON file)
+      return getJSON(response.results[0]); // only the first planet!
     })
-    .then(function(results){ // results are data?
-      createPlanetThumb(results);
+    .then(function(planetData){
+      createPlanetThumb(planetData);
     })
     .catch(function(err){
       console.log(err);
