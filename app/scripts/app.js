@@ -55,10 +55,20 @@ Instructions:
 
   window.addEventListener('WebComponentsReady', function() {
     home = document.querySelector('section[data-route="home"]');
-    /*
-    Your code goes here! Uncomment the next line when you're ready to start!
-     */
 
-    // getJSON('../data/earth-like-results.json')
+    getJSON('../data/earth-like-results.json')
+    .then (function(response){
+      addSearchHeader(response.query);
+      // see .map doc
+      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
+      // syntax: arr.map(callback[, thisArg])
+      response.results.map(function(url){
+        getJSON(url)
+        .then(createPlanetThumb);
+      });
+    })
+    .catch(function(err){
+      console.log(err);
+    });
   });
 })(document);
