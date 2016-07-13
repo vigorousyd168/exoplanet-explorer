@@ -4,7 +4,7 @@ Instructions:
   (a) Each Promise will be executed in parallel.
   (b) The return values will be returned in the same order as the Promises were created.
 Hint: you'll probably still need to use .map.
- */
+*/
 
 // Inline configuration for jshint below. Prevents `gulp jshint` from failing with quiz starter code.
 /* jshint unused: false */
@@ -18,7 +18,7 @@ Hint: you'll probably still need to use .map.
    * Helper function to show the search query.
    * @param {String} query - The search query.
    */
-  function addSearchHeader(query) {
+   function addSearchHeader(query) {
     home.innerHTML = '<h2 class="page-title">query: ' + query + '</h2>';
   }
 
@@ -26,7 +26,7 @@ Hint: you'll probably still need to use .map.
    * Helper function to create a planet thumbnail.
    * @param  {Object} data - The raw data describing the planet.
    */
-  function createPlanetThumb(data) {
+   function createPlanetThumb(data) {
     var pT = document.createElement('planet-thumb');
     for (var d in data) {
       pT[d] = data[d];
@@ -39,7 +39,7 @@ Hint: you'll probably still need to use .map.
    * @param  {String} url - The URL to fetch.
    * @return {Promise}    - A Promise that resolves when the XHR succeeds and fails otherwise.
    */
-  function get(url) {
+   function get(url) {
     return fetch(url);
   }
 
@@ -48,7 +48,7 @@ Hint: you'll probably still need to use .map.
    * @param  {String} url - The JSON URL to fetch.
    * @return {Promise}    - A promise that passes the parsed JSON response.
    */
-  function getJSON(url) {
+   function getJSON(url) {
     return get(url).then(function(response) {
       return response.json();
     });
@@ -58,15 +58,25 @@ Hint: you'll probably still need to use .map.
     home = document.querySelector('section[data-route="home"]');
     /*
     Refactor this code with Promise.all!
-     */
+    */
     getJSON('../data/earth-like-results.json')
     .then(function(response) {
 
       addSearchHeader(response.query);
-
-      response.results.map(function(url) {
-        getJSON(url).then(createPlanetThumb);
+      // see .all doc
+      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all
+      // syntax: Promise.all(iterable);
+      var promises = response.results.map(function(url) {
+        return getJSON(url);
       });
+
+      Promise.all(promises)
+      .then(function(responses){
+        responses.forEach(function(data){
+          createPlanetThumb(data);
+        });
+      });
+
     });
   });
 })(document);
