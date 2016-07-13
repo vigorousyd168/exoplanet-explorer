@@ -29,12 +29,7 @@ Instructions:
    * @return {Promise}    - A Promise that resolves when the XHR succeeds and fails otherwise.
    */
   function get(url) {
-    /*
-    Use the Fetch API to GET a URL.
-    Return the fetch.
-
-    Your code goes here!
-     */
+    return fetch(url, {method: 'get'}); // this should be a Promise?
   }
 
   /**
@@ -43,21 +38,27 @@ Instructions:
    * @return {Promise}    - A promise that passes the parsed JSON response.
    */
   function getJSON(url) {
-    /*
-    Return a Promise that gets a URL and parses the JSON response. Use your get method!
-
-    Your code goes here!
-     */
+    return new Promise(function(resolve, reject) {
+      get(url)
+      .then(function(response){
+        console.log(response);
+        resolve(JSON.parse(response).query);
+      })
+      .catch(function(err){
+        reject(err);
+      });
+    });
   }
 
   window.addEventListener('WebComponentsReady', function() {
     home = document.querySelector('section[data-route="home"]');
-    /*
-    Uncomment the next line when you're ready to test!
-    Don't forget to chain with a .then and a .catch!
-
-    Your code goes here too!
-     */
-    // getJSON('../data/earth-like-results.json')
+    getJSON('../data/earth-like-results.json')
+    .then(function(query){
+      console.log(query);
+      addSearchHeader(query);
+    })
+    .catch(function(err){
+      addSearchHeader('unknown');
+    })
   });
 })(document);
