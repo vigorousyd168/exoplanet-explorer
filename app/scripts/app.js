@@ -30,6 +30,7 @@ proper order even if all the requests haven't finished.
     for (var d in data) {
       pT[d] = data[d];
     }
+    console.log('appending child for ' + data.pl_name);
     home.appendChild(pT);
   }
 
@@ -42,22 +43,56 @@ proper order even if all the requests haven't finished.
     return fetch(url);
   }
 
-  /**
-   * Performs an XHR for a JSON and returns a parsed JSON response.
-   * @param  {String} url - The JSON URL to fetch.
-   * @return {Promise}    - A promise that passes the parsed JSON response.
-   */
-  function getJSON(url) {
-    return get(url).then(function(response) {
+/**
+ * Performs an XHR for a JSON and returns a parsed JSON response - with a delay!
+ * @param  {String} url - The JSON URL to fetch.
+ * @return {Promise}    - A promise that passes the parsed JSON response.
+ */
+function getJSON(url) {
+  console.log('sent: ' + url);
+  return get(url).then(function(response) {
+    // For testing purposes, I'm making sure that the urls don't return in order
+    if (url === 'data/planets/Kepler-62f.json') {
+      return new Promise(function(resolve) {
+        setTimeout(function() {
+          console.log('received: ' + url);
+          resolve(response.json());
+        }, 500);
+      });
+    } else {
+      console.log('received: ' + url);
       return response.json();
-    });
-  }
+    }
+  });
+}
 
   window.addEventListener('WebComponentsReady', function() {
     home = document.querySelector('section[data-route="home"]');
     /*
-    Your code goes here!
+    Idea: an array of Promise arrays.
+    Goal: once the promises *before* are fulfilled, thumbnails can be created.
+
+    Correction: the promises include the promise of creating thumbnails. So,
+      consider promises of fetching JSON and promises of creating thumbnails.
      */
-    // getJSON('../data/earth-like-results.json')
+    getJSON('../data/earth-like-results.json')
+    .then(function(response){
+      addSearchHeader(response.query);
+      // tricky here
+      var arrayOfPromises = [];
+      response.results.forEach(function(url){
+        arrayOfPromises.push(getJSON(url));
+        Promise.all(arrayOfPromises)
+        .then(function(arrayOfPlanetData){
+          // create thumbnail for last planet in the array
+          console.log('ready');
+          console.log(arrayOfPlanetData);
+          createPlanetThumb(arrayOfPlanetData[arrayOfPlanetData.length-1]);
+        }); // end Promise.all
+      });
+    })
+    .catch(function(err){
+      console.log(err);
+    });
   });
 })(document);
